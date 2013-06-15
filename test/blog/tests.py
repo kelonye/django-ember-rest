@@ -5,6 +5,7 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from models import Tag, User, Post, Comment
 
+
 FIXTURES = (
       'tags'
     , 'users'
