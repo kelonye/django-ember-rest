@@ -37,7 +37,7 @@ class Api:
             url(r'^%ss/(?P<pk>\d+)/$' % self.name, self.one),
         ]
 
-    def json(self, item):
+    def itemToJSON(self, item):
         data = json.loads(
             serializers.serialize('json', [item])
         )[0]
@@ -66,7 +66,7 @@ class Api:
         items_json = []
         for item in items:
             if not isinstance(item.__is_readable__(req), HttpResponse):
-                items_json.append(self.json(item))
+                items_json.append(self.itemToJSON(item))
         json_data = {}
         json_data['%ss' % self.name] = items_json
         return HttpResponse(
@@ -80,7 +80,7 @@ class Api:
         if isinstance(res, HttpResponse):
             return res
         json_data = {}
-        json_data[self.name] = self.json(item)
+        json_data[self.name] = self.itemToJSON(item)
         return HttpResponse(
             json.dumps(json_data), content_type='application/json'
         )
