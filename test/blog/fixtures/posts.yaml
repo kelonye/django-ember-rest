@@ -1,0 +1,17 @@
+- fields:
+    date_created: "2013-10-20 14:23:07.851712+00:00"
+    date_updated: "2013-10-20 14:23:07.851712+00:00"
+    title: "Good Design"
+    content: ""
+    user: 1
+  model: blog.post
+  pk: 1
+
+- fields:
+    date_created: "2013-10-20 14:23:07.851712+00:00"
+    date_updated: "2013-10-20 14:23:07.851712+00:00"
+    title: "Writing Better Apis"
+    content: ""
+    user: 1
+  model: blog.post
+  pk: 2

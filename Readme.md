@@ -21,7 +21,20 @@ class Model:
     def __is_removable__(self, req):
         return HttpResponse(status=403)
 
-apis = Apis(User, Model, ...)
+class UserApi(Api):
+    model = User
+    fields = [
+        'username'
+    ]
+
+class ModelApi(Api):
+    model = Model
+    fields = [
+        'name',
+        'content'
+    ]
+
+apis = Apis(UserApi, ModelApi)
 
 urlpatterns = patterns('',
     url(r'^', include(apis.urls)),

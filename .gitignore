@@ -1,4 +1,5 @@
 *.pyc
+*.sqlite3
 build/
 dist
 django_ember_rest.egg-info

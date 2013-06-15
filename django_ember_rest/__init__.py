@@ -9,7 +9,7 @@ from django.conf.urls.defaults import patterns, include, url
 
 
 class Api:
-    def __init__(self, model):
+    def __init__(self, model, fields):
         for attr in [
             '__is_creatable__',
             '__is_readable__',
@@ -25,6 +25,7 @@ class Api:
                 )
 
         self.model = model
+        self.fields = fields
 
     @property
     def name(self):
@@ -39,14 +40,13 @@ class Api:
 
     def itemToJSON(self, item):
         data = json.loads(
-            serializers.serialize('json', [item])
+            serializers.serialize('json', [item], fields=self.fields)
         )[0]
         item_json = data['fields']
         item_json['id'] = data['pk']
-        for field in self.model._meta.fields:
-            field_name = field.verbose_name
+        for field_name in self.fields:
+            field = getattr(item, field_name)
             # ForeignKey
-            print field
             if type(field) == ForeignKey:
                 belongsTo = field_name.replace(' ', '_')
                 item_json[belongsTo + '_id'] = item_json[belongsTo]
@@ -76,8 +76,9 @@ class Api:
     # GET /`model`/`pk`/
     def one(self, req, pk):
         item = self.model.objects.get(pk=pk)
-        res = item.__is_readable__(req)
-        if isinstance(res, HttpResponse):
+        is_readable = item.__is_readable__(req)
+        if isinstance(is_readable, HttpResponse):
+            res = is_readable
             return res
         json_data = {}
         json_data[self.name] = self.itemToJSON(item)
@@ -88,9 +89,11 @@ class Api:
 class Apis(list):
 
     def __init__(self, *args):
-        super(list, self).__init__([])
-        for model in args:
-            api = Api(model)
+        super(list, self).__init__()
+
+        for arg in args:
+            model, fields = arg
+            api = Api(model, fields)
             for url in api.urls:
                 self.append(url)
 
