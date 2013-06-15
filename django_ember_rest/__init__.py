@@ -5,37 +5,54 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.db.models.fields.files import FieldFile
 from django.db.models.fields.related import ForeignKey
-from django.conf.urls.defaults import patterns, include, url
+from django.conf.urls import patterns, include, url
 
 
 class Api:
-    def __init__(self, model, fields):
+    def __init__(self, cls):
+        
+        self.cls = cls
+        self.model = cls.model
+        self.fields = cls.fields
+
         for attr in [
             '__is_creatable__',
             '__is_readable__',
             '__is_updatable__',
             '__is_removable__'
         ]:
-            if not getattr(model, attr, None):
+            if not getattr(self.model, attr, None):
                 raise Exception(
                     'please implement %s.%s(self, req)' % (
-                        model.__name__,
+                        self.model.__name__,
                         attr
                     )
                 )
-
-        self.model = model
-        self.fields = fields
 
     @property
     def name(self):
         return re.sub('(?!^)([A-Z]+)', r'_\1', self.model.__name__).lower()
 
     @property
+    def plural_name(self):
+        plural_name = getattr(self.cls, 'plural_name', None)
+        if not plural_name:
+            plural_name = '%ss' % self.name
+        return plural_name
+
+    @property
     def urls(self):
         return [
-            url(r'^%ss/$' % self.name, self.all),
-            url(r'^%ss/(?P<pk>\d+)/$' % self.name, self.one),
+            url(
+                  r'^%s/$' % self.plural_name
+                , self.all
+                , name=self.plural_name
+            ),
+            url(
+                  r'^%s/(?P<pk>\d+)/$' % self.plural_name
+                , self.one
+                , name=self.name
+            ),
         ]
 
     def itemToJSON(self, item):
@@ -91,9 +108,8 @@ class Apis(list):
     def __init__(self, *args):
         super(list, self).__init__()
 
-        for arg in args:
-            model, fields = arg
-            api = Api(model, fields)
+        for cls in args:
+            api = Api(cls)
             for url in api.urls:
                 self.append(url)
 

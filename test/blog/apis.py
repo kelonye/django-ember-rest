@@ -1,19 +1,46 @@
 from django_ember_rest import Apis
 from models import Tag, User, Post, Comment
 
-apis = Apis(
-       ( Tag, (
+class TagApi:
+    model = Tag
+    fields = (
         'name',
         'post',
         'user',
-    )),( User, (
+    )
+
+
+class UserApi:
+    model = User
+    fields = (
         'username',
-    )),( Post, (
+    )
+
+class PostApi:
+    model = User
+    fields = (
         'title',
+        'content',
         'user',
-    )),( Comment, (
+    )
+
+class CommentApi:
+    model = User
+    fields = (
         'content',
         'post',
         'user',
-    ))
+    )
+
+apis = Apis(
+    TagApi,
+    UserApi,
+    PostApi,
+    CommentApi
 )
+
+# apis = Apis()
+# apis.append(TagApi)
+# apis.append(UserApi)
+# apis.append(PostApi)
+# apis.append(CommentApi)

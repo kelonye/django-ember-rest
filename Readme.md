@@ -21,18 +21,20 @@ class Model:
     def __is_removable__(self, req):
         return HttpResponse(status=403)
 
-class UserApi(Api):
-    model = User
-    fields = [
-        'username'
-    ]
 
-class ModelApi(Api):
+class UserApi:
+    model = User
+    fields = ()
+        'username'
+    )
+    plural_name = 'people' # custom plural name
+
+class ModelApi:
     model = Model
-    fields = [
-        'name',
-        'content'
-    ]
+    fields = (
+          'name'
+        , 'content'
+    )
 
 apis = Apis(UserApi, ModelApi)
 

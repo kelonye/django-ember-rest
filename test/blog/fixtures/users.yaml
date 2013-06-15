@@ -1,29 +1,29 @@
 - fields:
     date_joined: "2013-01-20 13:24:25.851712+00:00"
-    email: test@example.com
-    first_name: J
-    last_name: D
+    email: tj@example.com
+    first_name: T
+    last_name: J
     is_active: true
     is_staff: true
     is_superuser: true
     last_login: "2013-01-20 14:23:07.851712+00:00"
     password: pbkdf2_sha256$10000$Wefyl43z0TI7$YI+LFVEcv2TuqxwD0VaKBgYiXzSYUzRy3ReNkhwQb3o=
     user_permissions: []
-    username: test
+    username: tj
   model: auth.user
   pk: 1
 
 - fields:
     date_joined: "2013-01-20 13:24:25.851712+00:00"
-    email: tj@example.com
-    first_name: T
-    last_name: J
+    email: jd@example.com
+    first_name: J
+    last_name: D
     is_active: true
     is_staff: true
     is_superuser: false
     last_login: "2013-01-20 14:23:07.851712+00:00"
     password: pbkdf2_sha256$10000$Wefyl43z0TI7$YI+LFVEcv2TuqxwD0VaKBgYiXzSYUzRy3ReNkhwQb3o=
     user_permissions: []
-    username: tj
+    username: jd
   model: auth.user
   pk: 2
