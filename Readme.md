@@ -12,6 +12,7 @@ from django_ember_rest import Apis
 
 class Model:
     ...
+    # define model permissions
     def __is_creatable__(self, req):
         return HttpResponse(status=403)
     def __is_readable__(self, req):
@@ -21,19 +22,19 @@ class Model:
     def __is_removable__(self, req):
         return HttpResponse(status=403)
 
-
 class UserApi:
     model = User
-    fields = ()
-        'username'
+    fields = (
+        'username',
     )
-    plural_name = 'people' # custom plural name
+    # define custom plural name
+    plural_name = 'people'
 
 class ModelApi:
     model = Model
     fields = (
-          'name'
-        , 'content'
+        'name',
+        'content',
     )
 
 apis = Apis(UserApi, ModelApi)
@@ -43,6 +44,18 @@ urlpatterns = patterns('',
 )
 
 ```
+
+Example
+---
+    
+    $ make example
+
+
+Test
+---
+
+    $ make test
+
 
 Licence
 ---
