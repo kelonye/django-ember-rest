@@ -8,9 +8,9 @@ Use
 
 ```
 
-from django_ember_rest import Apis
+# models
 
-class Model:
+class Model(db.Models):
     ...
     # define model permissions
     def __is_creatable__(self, req):
@@ -21,6 +21,11 @@ class Model:
         return HttpResponse(status=403)
     def __is_removable__(self, req):
         return HttpResponse(status=403)
+
+
+# apis
+
+from django_ember_rest import Apis
 
 class UserApi:
     model = User
@@ -36,6 +41,9 @@ class ModelApi:
         'name',
         'content',
     )
+
+
+# urls
 
 apis = Apis(UserApi, ModelApi)
 
