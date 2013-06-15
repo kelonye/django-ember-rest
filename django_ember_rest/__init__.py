@@ -3,10 +3,9 @@ import simplejson as json
 from django.conf import settings
 from django.core import serializers
 from django.http import HttpResponse
+from django.conf.urls import patterns, include, url
 from django.db.models.fields.files import FieldFile
 from django.db.models.fields.related import ForeignKey
-from django.conf.urls import patterns, include, url
-
 
 class Api:
     def __init__(self, cls):

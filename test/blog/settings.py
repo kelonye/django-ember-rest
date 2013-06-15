@@ -82,12 +82,17 @@ ROOT_URLCONF = '%s.urls' % APPLICATION
 
 WSGI_APPLICATION = '%s.wsgi.application' % APPLICATION
 
-INSTALLED_APPS = (
+TEST_EXCLUDE = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+)
+
+INSTALLED_APPS = TEST_EXCLUDE + (
     'blog',
 )
+
+TEST_RUNNER = 'django_test_exclude.runners.ExcludeTestSuiteRunner'

@@ -17,7 +17,7 @@ class UserApi:
     )
 
 class PostApi:
-    model = User
+    model = Post
     fields = (
         'title',
         'content',
@@ -25,7 +25,7 @@ class PostApi:
     )
 
 class CommentApi:
-    model = User
+    model = Comment
     fields = (
         'content',
         'post',
