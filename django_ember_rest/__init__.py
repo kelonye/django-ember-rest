@@ -163,7 +163,7 @@ class Api:
 
             setattr(item, field.name, value)
 
-        # note, __is_creatable__ should overide any set attributes
+        # note, __is_creatable__ should override any set attributes
         is_creatable = item.__is_creatable__(req)
         if isinstance(is_creatable, HttpResponse):
             res = is_creatable
