@@ -63,7 +63,7 @@ class Api:
         for field_name in self.fields:
             field = getattr(item, field_name)
             # ForeignKey
-            if type(field) == ForeignKey:
+            if getattr(field, 'pk', None):
                 belongsTo = field_name.replace(' ', '_')
                 item_json[belongsTo + '_id'] = item_json[belongsTo]
                 del item_json[belongsTo]
