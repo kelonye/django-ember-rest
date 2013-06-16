@@ -21,12 +21,9 @@ class Permission:
 
 class Field:
 
-    def __init__(self, field):
+    def __init__(self, name, field):
+        self.name = name
         self.field = field
-
-    @property
-    def name(self):
-        return self.field.verbose_name
 
     @property
     def underscored_name(self):
@@ -82,7 +79,7 @@ class Api:
     def field_list(self):
         for field_name in self.fields:
             field = self.model._meta.get_field(field_name)
-            yield Field(field)
+            yield Field(field_name, field)
 
     def item_to_JSON(self, item):
         
