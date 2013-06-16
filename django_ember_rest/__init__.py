@@ -189,7 +189,7 @@ class Api:
 
     def __update__(self, req, item):
 
-        data = json.loads(req.body)['post']
+        data = json.loads(req.body)[self.name]
 
         for field in self.field_list:
 
