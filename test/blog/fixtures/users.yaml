@@ -22,7 +22,7 @@
     is_staff: true
     is_superuser: false
     last_login: "2013-01-20 14:23:07.851712+00:00"
-    password: pbkdf2_sha256$10000$Wefyl43z0TI7$YI+LFVEcv2TuqxwD0VaKBgYiXzSYUzRy3ReNkhwQb3o=
+    password: pbkdf2_sha256$10000$329jYaCLfegy$9dFfKdWE61l8Vf7/8nKWh4Pi18bbUEJrdovrNCdJpwY=
     user_permissions: []
     username: jd
   model: auth.user

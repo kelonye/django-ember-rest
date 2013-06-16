@@ -62,3 +62,22 @@ class MethodT(TestCase):
         self.assertEqual(post.title, data['post']['title'])
         self.assertEqual(post.content, data['post']['content'])
         self.assertEqual(post.user.pk, data['post']['user_id'])
+
+class PersmissionsT:
+
+    def test_create(self):
+
+        self.client = Client()
+        self.client.login(username='jd', password='test')
+
+        data = {
+            'title': 'New Book',
+            'content': ' ',
+            'user_id': '1'
+        }
+        uri = reverse('apis:posts')
+        res = self.client.post(uri, data)
+        self.assertEqual(res.status_code, 403)
+        posts = Post.objects.all()
+        # assert no new post was created
+        self.assertEqual(posts.count(), 2)
