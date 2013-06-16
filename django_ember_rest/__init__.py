@@ -196,7 +196,7 @@ class Api:
                 value = model.objects.get(pk=pk)
             else:
                 value = data[field.underscored_name]
-
+            
             setattr(item, field.name, value)
 
 class Apis(list):
