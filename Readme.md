@@ -2,6 +2,7 @@ Install
 ---
 
     $ pip install django-ember-rest
+    $ component install kelonye/django-ember-rest
 
 Use
 ---
@@ -50,6 +51,21 @@ apis = Apis(UserApi, ModelApi)
 urlpatterns = patterns('',
     url(r'^', include(apis.urls)),
 )
+
+```
+
+Then on client side, define your store as
+
+```
+
+App.Adapter = require('django-ember-rest').extend({
+  namespace: 'api'
+});
+
+App.Store = DS.Store.extend({
+  revision: DS.CURRENT_API_REVISION,
+  adapter: 'App.Adapter'
+});
 
 ```
 

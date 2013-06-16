@@ -2,10 +2,38 @@ import re
 import simplejson as json
 from django.conf import settings
 from django.core import serializers
-from django.http import HttpResponse
+from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
 from django.db.models.fields.files import FieldFile
 from django.db.models.fields.related import ForeignKey
+from django.http import HttpResponse, HttpResponseRedirect
+
+
+class Permission:
+    def __init__(self, model, attr):
+        if not getattr(model, attr, None):
+            opts = (self.model.__name__, attr)
+            raise Exception(
+                'please implement %s.%s(self, req)' % opts
+            )
+
+class Field:
+
+    def __init__(self, field):
+        self.field = field
+
+    @property
+    def name(self):
+        return self.field.verbose_name
+
+    @property
+    def underscored_name(self):
+        return self.name.replace(' ', '_')
+    
+    @property
+    def belongs_to_name(self):
+        return self.underscored_name + '_id'
+
 
 class Api:
     def __init__(self, cls):
@@ -20,13 +48,7 @@ class Api:
             '__is_updatable__',
             '__is_removable__'
         ]:
-            if not getattr(self.model, attr, None):
-                raise Exception(
-                    'please implement %s.%s(self, req)' % (
-                        self.model.__name__,
-                        attr
-                    )
-                )
+            Permission(self.model, attr)
 
     @property
     def name(self):
@@ -54,53 +76,111 @@ class Api:
             ),
         ]
 
-    def itemToJSON(self, item):
-        data = json.loads(
-            serializers.serialize('json', [item], fields=self.fields)
-        )[0]
-        item_json = data['fields']
-        item_json['id'] = data['pk']
+    @property
+    def field_list(self):
         for field_name in self.fields:
-            field = getattr(item, field_name)
-            # ForeignKey
-            if getattr(field, 'pk', None):
-                belongsTo = field_name.replace(' ', '_')
-                item_json[belongsTo + '_id'] = item_json[belongsTo]
-                del item_json[belongsTo]
-            # FileField, ImageField
-            else:
-                file_field = getattr(item, field_name, None)
-                if isinstance(file_field, FieldFile):
-                    file_path = item_json[field_name]
-                    del item_json[field_name]
-                    item_json[field_name.replace(' ', '_')] = settings.MEDIA_URL + file_path
-        return item_json
+            field = self.model._meta.get_field(field_name)
+            yield Field(field)
+
+    def item_to_JSON(self, item):
+        
+        items_string = serializers.serialize('json', [item], fields=self.fields)
+        items_json = json.loads(items_string)
+        item_json = items_json[0]
+        item_data = item_json['fields']
+        item_data['id'] = item_json['pk']
+
+        for field in self.field_list:
+
+            if isinstance(field.field, ForeignKey):
+                pk = item_data[field.underscored_name]
+                item_data[field.belongs_to_name] = pk
+                del item_data[field.underscored_name]
+
+            elif isinstance(field.field, FieldFile):
+                file_path = item_data[field.name]
+                item_data[field.underscored_name] = settings.MEDIA_URL + file_path
+                del item_data[field.name]
+
+        return item_data
 
     # GET /`model`/
     def all(self, req):
-        items = self.model.objects.all()
-        items_json = []
-        for item in items:
-            if not isinstance(item.__is_readable__(req), HttpResponse):
-                items_json.append(self.itemToJSON(item))
+
+        if req.method == 'POST':
+            return self.create(req)
+
+        def get_items_json():
+            items = self.model.objects.all()
+            for item in items:
+                is_readable = item.__is_readable__(req)
+                if not isinstance(is_readable, HttpResponse):
+                    yield self.item_to_JSON(item)
+
         json_data = {}
-        json_data['%ss' % self.name] = items_json
+        json_data[self.plural_name] = [ i for i in get_items_json() ]
+
         return HttpResponse(
             json.dumps(json_data), content_type='application/json'
         )
 
-    # GET /`model`/`pk`/
+    # METHOD /`model`/`pk`/
     def one(self, req, pk):
+
+        if req.method == 'PUT':
+            return self.update(req, pk)
+        elif req.method == 'DELETE':
+            return self.remove(req, pk)
+        else:
+            return self.find(req, pk)
+
+    # GET /`model`/`pk`/
+    def find(self, req, pk):
         item = self.model.objects.get(pk=pk)
         is_readable = item.__is_readable__(req)
         if isinstance(is_readable, HttpResponse):
             res = is_readable
             return res
         json_data = {}
-        json_data[self.name] = self.itemToJSON(item)
+        json_data[self.name] = self.item_to_JSON(item)
         return HttpResponse(
             json.dumps(json_data), content_type='application/json'
         )
+
+    # POST /`model`/
+    def create(self, req):
+
+        item = self.model()
+        
+        for field in self.field_list:
+
+            if isinstance(field.field, ForeignKey):
+                pk = req.POST[field.belongs_to_name]
+                model = field.field.rel.to
+                value = model.objects.get(pk=pk)
+            else:
+                value = req.POST[field.underscored_name]
+
+            setattr(item, field.name, value)
+
+        # note, __is_creatable__ should overide any set attributes
+        is_creatable = item.__is_creatable__(req)
+        if isinstance(is_creatable, HttpResponse):
+            res = is_creatable
+            return res
+
+        item.save()
+
+        return self.find(req, item.pk)
+
+    # PUT /`model`/`pk`/
+    def update(self, req, pk):
+        return self.find(req, item.pk)
+
+    # DELETE /`model`/`pk`/
+    def remove(self, req, pk):
+        return HttpResponse(json.dumps('{}'))
+
 
 class Apis(list):
 

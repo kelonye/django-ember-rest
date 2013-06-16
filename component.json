@@ -1,0 +1,16 @@
+{
+  "name": "django-ember-rest",
+  "version": "0.0.3",
+  "description": "Django Models ⇆ Ember-Data",
+  "dependencies": {
+    "kelonye/ember-data": "*"
+  },
+  "keywords": [
+    "ember",
+    "django"
+  ],
+  "scripts": [
+    "index.js"
+  ],
+  "license": "MIT"
+}

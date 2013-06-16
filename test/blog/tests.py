@@ -41,3 +41,24 @@ class MethodT(TestCase):
         data = json.loads(res.content)
         self.assertEqual(len(data.keys()), 1)
         self.assertEqual(data.keys()[0], 'post')
+        post_data = data['post']
+        self.assertEqual(post_data['id'], post.pk)
+        self.assertEqual(post_data['title'], post.title)
+        self.assertEqual(post_data['content'], post.content)
+        self.assertEqual(post_data['user_id'], post.user.pk)
+
+    def test_create(self):
+        data = {
+            'title': 'New Book',
+            'content': ' ',
+            'user_id': '1'
+        }
+        uri = reverse('apis:posts')
+        res = self.client.post(uri, data)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        post = Post.objects.latest('pk')
+        self.assertEqual(post.pk, data['post']['id'])
+        self.assertEqual(post.title, data['post']['title'])
+        self.assertEqual(post.content, data['post']['content'])
+        self.assertEqual(post.user.pk, data['post']['user_id'])
