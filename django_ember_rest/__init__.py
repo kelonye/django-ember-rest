@@ -12,7 +12,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 class Permission:
     def __init__(self, model, attr):
         if not getattr(model, attr, None):
-            opts = (self.model.__name__, attr)
+            opts = (model.__name__, attr)
             raise Exception(
                 'please implement %s.%s(self, req)' % opts
             )
