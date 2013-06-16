@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
 from django.db.models.fields.files import FieldFile
 from django.db.models.fields.related import ForeignKey
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect
 
 
@@ -16,6 +17,7 @@ class Permission:
             raise Exception(
                 'please implement %s.%s(self, req)' % opts
             )
+
 
 class Field:
 
@@ -58,7 +60,7 @@ class Api:
     def plural_name(self):
         plural_name = getattr(self.cls, 'plural_name', None)
         if not plural_name:
-            plural_name = '%ss' % self.name
+            plural_name = self.name + 's'
         return plural_name
 
     @property
@@ -105,6 +107,7 @@ class Api:
         return item_data
 
     # GET /`model`/
+    @csrf_exempt
     def all(self, req):
 
         if req.method == 'POST':
@@ -125,6 +128,7 @@ class Api:
         )
 
     # METHOD /`model`/`pk`/
+    @csrf_exempt
     def one(self, req, pk):
 
         if req.method == 'PUT':
@@ -151,18 +155,8 @@ class Api:
     def create(self, req):
 
         item = self.model()
+        self.__update__(req, item)
         
-        for field in self.field_list:
-
-            if isinstance(field.field, ForeignKey):
-                pk = req.POST[field.belongs_to_name]
-                model = field.field.rel.to
-                value = model.objects.get(pk=pk)
-            else:
-                value = req.POST[field.underscored_name]
-
-            setattr(item, field.name, value)
-
         # note, __is_creatable__ should override any set attributes
         is_creatable = item.__is_creatable__(req)
         if isinstance(is_creatable, HttpResponse):
@@ -175,12 +169,38 @@ class Api:
 
     # PUT /`model`/`pk`/
     def update(self, req, pk):
-        return self.find(req, item.pk)
+        
+        item = self.model.objects.get(pk=pk)
+        self.__update__(req, item)
+
+        is_updatable = item.__is_updatable__(req)
+        if isinstance(is_updatable, HttpResponse):
+            res = is_updatable
+            return res
+
+        item.save()
+
+        return self.find(req, pk)
 
     # DELETE /`model`/`pk`/
     def remove(self, req, pk):
         return HttpResponse(json.dumps('{}'))
 
+
+    def __update__(self, req, item):
+
+        data = json.loads(req.body)['post']
+
+        for field in self.field_list:
+
+            if isinstance(field.field, ForeignKey):
+                pk = data[field.belongs_to_name]
+                model = field.field.rel.to
+                value = model.objects.get(pk=pk)
+            else:
+                value = data[field.underscored_name]
+
+            setattr(item, field.name, value)
 
 class Apis(list):
 

@@ -1,6 +1,7 @@
 from django_ember_rest import Apis
 from models import Tag, User, Post, Comment
 
+
 class TagApi:
     model = Tag
     fields = (

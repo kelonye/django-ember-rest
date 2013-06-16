@@ -31,7 +31,7 @@ class MethodT(TestCase):
         self.assertEqual(data.keys()[0], 'posts')
         self.assertEqual(len(data['posts']), 2)
 
-    def test_one(self):
+    def test_find(self):
         post = Post.objects.all()[0]
         uri = reverse('apis:post', kwargs={
             'pk': post.pk
@@ -48,16 +48,35 @@ class MethodT(TestCase):
         self.assertEqual(post_data['user_id'], post.user.pk)
 
     def test_create(self):
-        data = {
-            'title': 'New Book',
-            'content': ' ',
-            'user_id': '1'
-        }
+        data = {"post": {
+            "title": "New Book",
+            "content": "",
+            "user_id": "1"
+        }}
         uri = reverse('apis:posts')
-        res = self.client.post(uri, data)
+        res = self.client.post(uri, json.dumps(data), 'application/json')
         self.assertEqual(res.status_code, 200)
         data = json.loads(res.content)
         post = Post.objects.latest('pk')
+        self.assertEqual(post.pk, data['post']['id'])
+        self.assertEqual(post.title, data['post']['title'])
+        self.assertEqual(post.content, data['post']['content'])
+        self.assertEqual(post.user.pk, data['post']['user_id'])
+
+    def test_update(self):
+        post = Post.objects.all()[0]
+        data = {"post": {
+            "title": "New Book",
+            "content": "",
+            "user_id": "1"
+        }}
+        uri = reverse('apis:post', kwargs={
+            'pk': post.pk
+        })
+        res = self.client.put(uri, json.dumps(data), 'application/json')
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        post = Post.objects.get(pk=post.pk)
         self.assertEqual(post.pk, data['post']['id'])
         self.assertEqual(post.title, data['post']['title'])
         self.assertEqual(post.content, data['post']['content'])
