@@ -81,6 +81,11 @@ Test
     $ make test
 
 
+Motivation
+---
+
+Frustration with `django-tastypie`
+
 Licence
 ---
 
