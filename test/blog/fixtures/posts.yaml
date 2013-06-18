@@ -3,6 +3,7 @@
     date_updated: "2013-10-20 14:23:07.851712+00:00"
     title: "Good Design"
     content: ""
+    image: "posts/image.png"
     user: 1
   model: blog.post
   pk: 1

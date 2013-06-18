@@ -4,7 +4,7 @@ from django.conf import settings
 from django.core import serializers
 from django.core.urlresolvers import reverse
 from django.conf.urls import patterns, include, url
-from django.db.models.fields.files import FieldFile
+from django.db.models.fields.files import FileField
 from django.db.models.fields.related import ForeignKey
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect
@@ -93,13 +93,14 @@ class Api:
 
             if isinstance(field.field, ForeignKey):
                 pk = item_data[field.underscored_name]
-                item_data[field.belongs_to_name] = pk
                 del item_data[field.underscored_name]
+                item_data[field.belongs_to_name] = pk
 
-            elif isinstance(field.field, FieldFile):
+            elif isinstance(field.field, FileField):
                 file_path = item_data[field.name]
-                item_data[field.underscored_name] = settings.MEDIA_URL + file_path
-                del item_data[field.name]
+                if file_path:
+                    #del item_data[field.name]
+                    item_data[field.underscored_name] = settings.MEDIA_URL + file_path
 
         return item_data
 

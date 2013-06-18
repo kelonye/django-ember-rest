@@ -3,3 +3,4 @@
 build/
 dist
 django_ember_rest.egg-info
+test/public/

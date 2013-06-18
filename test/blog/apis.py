@@ -23,6 +23,7 @@ class PostApi:
         'title',
         'content',
         'user',
+        'image'
     )
 
 class CommentApi:

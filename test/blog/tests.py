@@ -13,10 +13,74 @@ FIXTURES = (
     , 'comments'
 )
 
-
-class MethodT(TestCase):
+class T(TestCase):
 
     fixtures = FIXTURES
+
+
+class PersmissionT(T):
+
+    def test_create(self):
+
+        self.client = Client()
+        self.client.login(username='jd', password='test')
+
+        data = {
+            'title': 'New Book',
+            'content': ' ',
+            'user_id': '1'
+        }
+        uri = reverse('apis:posts')
+        res = self.client.post(uri, data)
+        self.assertEqual(res.status_code, 403)
+        posts = Post.objects.all()
+        # assert no new post was created
+        self.assertEqual(posts.count(), 2)
+
+
+class FieldT(T):
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username='tj', password='test')
+
+    def test_foreign(self):
+        post = Post.objects.all()[0]
+        uri = reverse('apis:post', kwargs={
+            'pk': post.pk
+        })
+        res = self.client.get(uri)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        post_data = data['post']
+        self.assertEqual(post_data['id'], post.pk)
+        self.assertEqual(post_data['user_id'], post.user.pk)
+
+    def test_image(self):
+        post = Post.objects.get(pk=1)
+        uri = reverse('apis:post', kwargs={
+            'pk': post.pk
+        })
+        res = self.client.get(uri)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        post_data = data['post']
+        self.assertEqual(post_data['id'], post.pk)
+        self.assertEqual(post_data['image'], '/media/posts/image.png')
+
+        post = Post.objects.get(pk=2)
+        uri = reverse('apis:post', kwargs={
+            'pk': post.pk
+        })
+        res = self.client.get(uri)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        post_data = data['post']
+        self.assertEqual(post_data['id'], post.pk)
+        self.assertEqual(post_data['image'], '')
+
+
+class ApiT(T):
 
     def setUp(self):
         self.client = Client()
@@ -96,23 +160,3 @@ class MethodT(TestCase):
             pass
         else:
             raise Exception('record still exists')
-
-
-class PersmissionsT:
-
-    def test_create(self):
-
-        self.client = Client()
-        self.client.login(username='jd', password='test')
-
-        data = {
-            'title': 'New Book',
-            'content': ' ',
-            'user_id': '1'
-        }
-        uri = reverse('apis:posts')
-        res = self.client.post(uri, data)
-        self.assertEqual(res.status_code, 403)
-        posts = Post.objects.all()
-        # assert no new post was created
-        self.assertEqual(posts.count(), 2)
