@@ -86,7 +86,7 @@ Motivation
 
 Frustration with `django-tastypie`
 
-Licence
+License
 ---
 
 MIT
