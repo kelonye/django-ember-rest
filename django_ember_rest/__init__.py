@@ -153,9 +153,7 @@ class Api(Utils):
             if type(item.field) == ForeignKey:
                 yield Relation(item)
 
-    #
     # update `item` with `req`.body
-    #
     def __update__(self, req, item):
 
         try:
