@@ -111,21 +111,6 @@ class Api(Utils):
         return plural_name
 
     @property
-    def urls(self):
-        return [
-            url(
-                  r'^%s/$' % self.plural_name
-                , self.all
-                , name=self.plural_name
-            ),
-            url(
-                  r'^%s/(?P<pk>\d+)/$' % self.plural_name
-                , self.one
-                , name=self.name
-            ),
-        ]
-
-    @property
     def field_list(self):
         for field_name in self.fields:
             field = self.model._meta.get_field(field_name)
@@ -165,7 +150,8 @@ class Api(Utils):
     @property
     def relations(self):
         for item in self.model._meta.get_all_related_objects():
-            yield Relation(item)
+            if type(item.field) == ForeignKey:
+                yield Relation(item)
 
     #
     # update `item` with `req`.body
@@ -189,6 +175,22 @@ class Api(Utils):
                 value = data.get(field.underscored_name, None)
             if value:
                 setattr(item, field.name, value)
+
+
+    @property
+    def urls(self):
+        return [
+            url(
+                  r'^%s/$' % self.plural_name
+                , self.all
+                , name=self.plural_name
+            ),
+            url(
+                  r'^%s/(?P<pk>\d+)/$' % self.plural_name
+                , self.one
+                , name=self.name
+            ),
+        ]
 
     # GET /`model`/
     @csrf_exempt
