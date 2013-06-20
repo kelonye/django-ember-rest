@@ -1,5 +1,5 @@
-Django>=1.3.0
-pytz==2013b
-simplejson==3.3.0
-django-extensions
 django-test-exclude==0.1.0
+pytz==2013b
+django-extensions
+Django>=1.3.0
+PIL

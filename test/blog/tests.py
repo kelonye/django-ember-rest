@@ -1,8 +1,8 @@
 import unittest
-import simplejson as json
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
+from django_ember_rest import json
 from models import Tag, User, Post, Comment
 
 

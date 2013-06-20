@@ -51,7 +51,10 @@ class Relation:
 
     @property
     def model(self):
-        return self.relation.opts.concrete_model().__class__
+        try:
+            return self.relation.opts.concrete_model().__class__
+        except AttributeError:
+            return self.relation.model().__class__
 
     @property
     def has_many_name(self):
@@ -153,17 +156,23 @@ class Api:
     #
     def __update__(self, req, item):
 
-        data = json.loads(req.body)[self.name]
+        try:
+            body = req.body
+        except AttributeError:
+            body = req.raw_post_data
+
+        data = json.loads(body)[self.name]
 
         for field in self.field_list:
-
+            value = None
             if isinstance(field.field, ForeignKey):
-                pk = data[field.belongs_to_name]
-                value = field.model.objects.get(pk=pk)
+                pk = data.get(field.belongs_to_name, None)
+                if pk:
+                    value = field.model.objects.get(pk=pk)
             else:
                 value = data.get(field.underscored_name, None)
-            
-            setattr(item, field.name, value)
+            if value:
+                setattr(item, field.name, value)
 
     # GET /`model`/
     @csrf_exempt
