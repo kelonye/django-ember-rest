@@ -146,13 +146,12 @@ class ApiT(T):
         self.assertEqual(post.content, data['post']['content'])
         self.assertEqual(post.user.pk, data['post']['user_id'])
 
-    @unittest.skip('unimplemented')
     def test_remove(self):
         post = Post.objects.all()[0]
         uri = reverse('apis:post', kwargs={
             'pk': post.pk
         })
-        res = self.client.delete(uri, json.dumps(data), 'application/json')
+        res = self.client.delete(uri)
         self.assertEqual(res.status_code, 200)
         try:
             post = Post.objects.get(pk=post.pk)

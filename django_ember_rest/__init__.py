@@ -128,7 +128,6 @@ class Api:
     # METHOD /`model`/`pk`/
     @csrf_exempt
     def one(self, req, pk):
-
         if req.method == 'PUT':
             return self.update(req, pk)
         elif req.method == 'DELETE':
@@ -182,6 +181,18 @@ class Api:
 
     # DELETE /`model`/`pk`/
     def remove(self, req, pk):
+
+        item = self.model.objects.get(pk=pk)
+
+        is_removable = item.__is_removable__(req)
+        if isinstance(is_removable, HttpResponse):
+            res = is_removable
+            return res
+
+        # remove dependencies
+
+        item.delete()
+        
         return HttpResponse(json.dumps('{}'))
 
 
@@ -196,7 +207,7 @@ class Api:
                 model = field.field.rel.to
                 value = model.objects.get(pk=pk)
             else:
-                value = data[field.underscored_name]
+                value = data.get(field.underscored_name, None)
             
             setattr(item, field.name, value)
 
