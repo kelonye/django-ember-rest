@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='django-ember-rest',
-    version='0.0.7',
+    version='0.0.8',
     description='Django Models <> Ember-Data',
     author='Mitchel Kelonye',
     author_email='kelonyemitchel@gmail.com',
