@@ -151,7 +151,7 @@ class Api:
     def __update__(self, req, item):
 
         data = json.loads(req.body)[self.name]
-        
+
         for field in self.field_list:
 
             if isinstance(field.field, ForeignKey):
@@ -248,6 +248,9 @@ class Api:
             return res
 
         # remove dependencies
+        # for relation in self.relations:
+        #     for obj in relation.get_items(item):
+        #         obj.delete()
 
         item.delete()
         

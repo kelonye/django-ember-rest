@@ -2,7 +2,7 @@
     date_created: "2013-10-20 14:23:07.851712+00:00"
     date_updated: "2013-10-20 14:23:07.851712+00:00"
     content: "Nice post"
-    post: 1
+    post: 3
     user: 2
   model: blog.comment
   pk: 1
@@ -11,7 +11,7 @@
     date_created: "2013-10-20 14:23:07.851712+00:00"
     date_updated: "2013-10-20 14:23:07.851712+00:00"
     content: "I agree"
-    post: 2
+    post: 3
     user: 2
   model: blog.comment
   pk: 2

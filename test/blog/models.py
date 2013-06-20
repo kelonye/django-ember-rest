@@ -12,7 +12,7 @@ def datetime_now_tz():
 User.__is_creatable__ = allow.none
 User.__is_readable__ = allow.anyone
 User.__is_updatable__ = allow.none
-User.__is_removable__ = allow.none
+User.__is_removable__ = allow.superuser
 
 
 class Model(models.Model):
@@ -65,7 +65,7 @@ class Tag(Model):
     __is_creatable__ = allow.owner
     __is_readable__ = allow.anyone
     __is_updatable__ = allow.owner
-    __is_removable__ = allow.owner
+    __is_removable__ = allow.superuser
 
 
 class Comment(Model):
@@ -80,4 +80,4 @@ class Comment(Model):
     __is_creatable__ = allow.owner
     __is_readable__ = allow.anyone
     __is_updatable__ = allow.owner
-    __is_removable__ = allow.owner
+    __is_removable__ = allow.superuser

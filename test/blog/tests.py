@@ -35,7 +35,7 @@ class PersmissionT(T):
         self.assertEqual(res.status_code, 403)
         posts = Post.objects.all()
         # assert no new post was created
-        self.assertEqual(posts.count(), 2)
+        self.assertEqual(posts.count(), 3)
 
 
 class FieldT(T):
@@ -93,7 +93,7 @@ class ApiT(T):
         data = json.loads(res.content)
         self.assertEqual(len(data.keys()), 1)
         self.assertEqual(data.keys()[0], 'posts')
-        self.assertEqual(len(data['posts']), 2)
+        self.assertEqual(len(data['posts']), 3)
 
     def test_find(self):
         post = Post.objects.all()[0]
@@ -191,10 +191,24 @@ class RelationsT(T):
         data = json.loads(res.content)
         user_data = data['user']
         self.assertEqual(user_data['id'], user.pk)
-        self.assertEqual(len(user_data['post_ids']), 0)
+        self.assertEqual(len(user_data['post_ids']), 1)
         self.assertEqual(len(user_data['tag_ids']), 2)
         self.assertTrue(1 in user_data['tag_ids'])
         self.assertTrue(2 in user_data['tag_ids'])
         self.assertEqual(len(user_data['comment_ids']), 2)
         self.assertTrue(1 in user_data['comment_ids'])
         self.assertTrue(2 in user_data['comment_ids'])
+
+    def test_dependant_records_are_deleted_on_delete(self):
+        user = User.objects.get(pk=1)
+        uri = reverse('apis:user', kwargs={
+            'pk': user.pk
+        })
+        res = self.client.delete(uri)
+        self.assertEqual(res.status_code, 200)
+
+        # assert no post exists
+        self.assertEqual(Post.objects.all().count(), 1)
+        # assert non dependencies are not affected
+        self.assertEqual(Tag.objects.all().count(), 2)
+        self.assertEqual(Comment.objects.all().count(), 2)
