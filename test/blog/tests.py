@@ -25,13 +25,13 @@ class PersmissionT(T):
         self.client = Client()
         self.client.login(username='jd', password='test')
 
-        data = {
+        data = {'post': {
             'title': 'New Book',
             'content': ' ',
             'user_id': '1'
-        }
+        }}
         uri = reverse('apis:posts')
-        res = self.client.post(uri, data)
+        res = self.client.post(uri, json.dumps(data), 'application/json')
         self.assertEqual(res.status_code, 403)
         posts = Post.objects.all()
         # assert no new post was created
@@ -112,10 +112,10 @@ class ApiT(T):
         self.assertEqual(post_data['user_id'], post.user.pk)
 
     def test_create(self):
-        data = {"post": {
-            "title": "New Book",
-            "content": "",
-            "user_id": "1"
+        data = {'post': {
+            'title': 'New Book',
+            'content': '',
+            'user_id': '1'
         }}
         uri = reverse('apis:posts')
         res = self.client.post(uri, json.dumps(data), 'application/json')
@@ -129,10 +129,10 @@ class ApiT(T):
 
     def test_update(self):
         post = Post.objects.all()[0]
-        data = {"post": {
-            "title": "New Book",
-            "content": "",
-            "user_id": "1"
+        data = {'post': {
+            'title': 'New Book',
+            'content': '',
+            'user_id': '1'
         }}
         uri = reverse('apis:post', kwargs={
             'pk': post.pk
@@ -159,3 +159,42 @@ class ApiT(T):
             pass
         else:
             raise Exception('record still exists')
+
+class RelationsT(T):
+
+    def setUp(self):
+        self.client = Client()
+        self.client.login(username='tj', password='test')
+
+    def test_has_many_fields_are_added_to_json_outputs(self):
+        user = User.objects.get(pk=1)
+        uri = reverse('apis:user', kwargs={
+            'pk': user.pk
+        })
+        res = self.client.get(uri)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        user_data = data['user']
+        self.assertEqual(user_data['id'], user.pk)
+        self.assertEqual(len(user_data['post_ids']), 2)
+        self.assertTrue(1 in user_data['post_ids'])
+        self.assertTrue(2 in user_data['post_ids'])
+        self.assertEqual(len(user_data['tag_ids']), 0)
+        self.assertEqual(len(user_data['comment_ids']), 0)
+
+        user = User.objects.get(pk=2)
+        uri = reverse('apis:user', kwargs={
+            'pk': user.pk
+        })
+        res = self.client.get(uri)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        user_data = data['user']
+        self.assertEqual(user_data['id'], user.pk)
+        self.assertEqual(len(user_data['post_ids']), 0)
+        self.assertEqual(len(user_data['tag_ids']), 2)
+        self.assertTrue(1 in user_data['tag_ids'])
+        self.assertTrue(2 in user_data['tag_ids'])
+        self.assertEqual(len(user_data['comment_ids']), 2)
+        self.assertTrue(1 in user_data['comment_ids'])
+        self.assertTrue(2 in user_data['comment_ids'])

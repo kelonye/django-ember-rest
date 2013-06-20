@@ -33,6 +33,34 @@ class Field:
     def belongs_to_name(self):
         return self.underscored_name + '_id'
 
+    @property
+    def model(self):
+        return self.field.rel.to
+
+class Relation:
+
+    def __init__(self, relation):
+        self.relation = relation
+
+    @property
+    def name(self):
+        return re.sub('(?!^)([A-Z]+)', r'_\1', self.relation.field.verbose_name).lower()
+
+    @property
+    def model(self):
+        return self.relation.opts.concrete_model().__class__
+
+    @property
+    def has_many_name(self):
+        name = re.sub('(?!^)([A-Z]+)', r'_\1', self.relation.var_name).lower()
+        return name + '_ids'
+
+    def get_items(self, item):
+        query = {}
+        query[self.name] = item
+        for obj in self.model.objects.filter(**query):
+            yield obj
+
 
 class Api:
     def __init__(self, cls):
@@ -99,10 +127,40 @@ class Api:
             elif isinstance(field.field, FileField):
                 file_path = item_data[field.name]
                 if file_path:
-                    #del item_data[field.name]
+                    del item_data[field.name]
                     item_data[field.underscored_name] = settings.MEDIA_URL + file_path
 
+        #  add has many fields
+        for relation in self.relations:
+            if not getattr(item_data, relation.has_many_name, None):
+                item_data[relation.has_many_name] = []
+            #item_data.setdefault(relation.has_many_name, [])
+            for obj in relation.get_items(item):
+                item_data[relation.has_many_name].append(obj.pk)
+
         return item_data
+
+    @property
+    def relations(self):
+        for item in self.model._meta.get_all_related_objects():
+            yield Relation(item)
+
+    #
+    # update `item` with `req`.body
+    #
+    def __update__(self, req, item):
+
+        data = json.loads(req.body)[self.name]
+        
+        for field in self.field_list:
+
+            if isinstance(field.field, ForeignKey):
+                pk = data[field.belongs_to_name]
+                value = field.model.objects.get(pk=pk)
+            else:
+                value = data.get(field.underscored_name, None)
+            
+            setattr(item, field.name, value)
 
     # GET /`model`/
     @csrf_exempt
@@ -195,21 +253,6 @@ class Api:
         
         return HttpResponse(json.dumps('{}'))
 
-
-    def __update__(self, req, item):
-
-        data = json.loads(req.body)[self.name]
-
-        for field in self.field_list:
-
-            if isinstance(field.field, ForeignKey):
-                pk = data[field.belongs_to_name]
-                model = field.field.rel.to
-                value = model.objects.get(pk=pk)
-            else:
-                value = data.get(field.underscored_name, None)
-            
-            setattr(item, field.name, value)
 
 class Apis(list):
 
