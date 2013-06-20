@@ -13,7 +13,19 @@ try:
 except ImportError:
     from django.conf.urls.defaults import patterns, include, url
 
-class Permission:
+
+class Utils:
+
+    # return `string` underscored e.g.
+    # bigData/ big data -> big_data
+    def get_underscored_string(self, string):
+        return re\
+            .sub('(?!^)([A-Z]+)', r'_\1', string)\
+            .replace(' ', '_')\
+            .lower()
+
+
+class Permission(Utils):
     def __init__(self, model, attr):
         if not getattr(model, attr, None):
             opts = (model.__name__, attr)
@@ -22,7 +34,7 @@ class Permission:
             )
 
 
-class Field:
+class Field(Utils):
 
     def __init__(self, name, field):
         self.name = name
@@ -30,7 +42,7 @@ class Field:
 
     @property
     def underscored_name(self):
-        return self.name.replace(' ', '_')
+        return self.get_underscored_string(self.name)
     
     @property
     def belongs_to_name(self):
@@ -40,14 +52,16 @@ class Field:
     def model(self):
         return self.field.rel.to
 
-class Relation:
+class Relation(Utils):
 
     def __init__(self, relation):
         self.relation = relation
 
     @property
     def name(self):
-        return re.sub('(?!^)([A-Z]+)', r'_\1', self.relation.field.verbose_name).lower()
+        return self.get_underscored_string(
+            self.relation.field.verbose_name
+        )
 
     @property
     def model(self):
@@ -58,7 +72,9 @@ class Relation:
 
     @property
     def has_many_name(self):
-        name = re.sub('(?!^)([A-Z]+)', r'_\1', self.relation.var_name).lower()
+        name = self.get_underscored_string(
+            self.relation.var_name
+        )
         return name + '_ids'
 
     def get_items(self, item):
@@ -68,7 +84,7 @@ class Relation:
             yield obj
 
 
-class Api:
+class Api(Utils):
     def __init__(self, cls):
         
         self.cls = cls
@@ -85,7 +101,7 @@ class Api:
 
     @property
     def name(self):
-        return re.sub('(?!^)([A-Z]+)', r'_\1', self.model.__name__).lower()
+        return self.get_underscored_string(self.model.__name__)
 
     @property
     def plural_name(self):
