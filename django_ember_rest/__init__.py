@@ -1,14 +1,17 @@
 import re
-import simplejson as json
+from django.utils import simplejson as json
 from django.conf import settings
 from django.core import serializers
 from django.core.urlresolvers import reverse
-from django.conf.urls import patterns, include, url
 from django.db.models.fields.files import FileField
 from django.db.models.fields.related import ForeignKey
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect
 
+try:
+    from django.conf.urls import patterns, include, url
+except ImportError:
+    from django.conf.urls.defaults import patterns, include, url
 
 class Permission:
     def __init__(self, model, attr):
