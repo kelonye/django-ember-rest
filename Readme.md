@@ -78,7 +78,7 @@ Example
 Test
 ---
 
-    $ make test
+    $ make
 
 
 Motivation
