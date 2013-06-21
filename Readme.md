@@ -71,14 +71,18 @@ App.Store = DS.Store.extend({
 
 Example
 ---
-    
-    $ make example
+  
+    $ make deps example
+    $ curl http://localhost:8000/users/
+    $ curl http://localhost:8000/posts/
+    $ curl http://localhost:8000/tags/
+    $ curl http://localhost:8000/comments/
 
 
 Test
 ---
 
-    $ make
+    $ make deps test
 
 
 Motivation
