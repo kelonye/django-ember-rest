@@ -1,6 +1,4 @@
 - fields:
-    date_created: "2013-10-20 14:23:07.851712+00:00"
-    date_updated: "2013-10-20 14:23:07.851712+00:00"
     content: "Nice post"
     post: 3
     user: 2
@@ -8,8 +6,6 @@
   pk: 1
 
 - fields:
-    date_created: "2013-10-20 14:23:07.851712+00:00"
-    date_updated: "2013-10-20 14:23:07.851712+00:00"
     content: "I agree"
     post: 3
     user: 2

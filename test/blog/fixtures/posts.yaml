@@ -1,6 +1,4 @@
 - fields:
-    date_created: "2013-10-20 14:23:07.851712+00:00"
-    date_updated: "2013-10-20 14:23:07.851712+00:00"
     title: "Good Design"
     content: ""
     image: "posts/image.png"
@@ -9,8 +7,6 @@
   pk: 1
 
 - fields:
-    date_created: "2013-10-20 14:23:07.851712+00:00"
-    date_updated: "2013-10-20 14:23:07.851712+00:00"
     title: "Writing Better Apis"
     content: ""
     user: 1
@@ -18,8 +14,6 @@
   pk: 2
 
 - fields:
-    date_created: "2013-10-20 14:23:07.851712+00:00"
-    date_updated: "2013-10-20 14:23:07.851712+00:00"
     title: "Documenting code"
     content: ""
     user: 2

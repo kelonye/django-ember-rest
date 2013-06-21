@@ -1,12 +1,12 @@
 - fields:
-    date_joined: "2013-01-20 13:24:25.851712+00:00"
+    date_joined: !!timestamp '2013-06-16 14:46:26+00:00'
     email: tj@example.com
     first_name: T
     last_name: J
     is_active: true
     is_staff: true
     is_superuser: true
-    last_login: "2013-01-20 14:23:07.851712+00:00"
+    last_login: !!timestamp '2013-06-16 14:46:26+00:00'
     password: pbkdf2_sha256$10000$329jYaCLfegy$9dFfKdWE61l8Vf7/8nKWh4Pi18bbUEJrdovrNCdJpwY=
     user_permissions: []
     username: tj
@@ -14,14 +14,14 @@
   pk: 1
 
 - fields:
-    date_joined: "2013-01-20 13:24:25.851712+00:00"
+    date_joined: !!timestamp '2013-06-16 14:46:26+00:00'
     email: jd@example.com
     first_name: J
     last_name: D
     is_active: true
     is_staff: true
     is_superuser: false
-    last_login: "2013-01-20 14:23:07.851712+00:00"
+    last_login: !!timestamp '2013-06-16 14:46:26+00:00'
     password: pbkdf2_sha256$10000$329jYaCLfegy$9dFfKdWE61l8Vf7/8nKWh4Pi18bbUEJrdovrNCdJpwY=
     user_permissions: []
     username: jd
