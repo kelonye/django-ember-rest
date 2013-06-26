@@ -1,6 +1,6 @@
 {
   "name": "django-ember-rest",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Django Models ⇆ Ember-Data",
   "dependencies": {
     "kelonye/ember-data": "*"
