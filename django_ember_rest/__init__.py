@@ -197,8 +197,17 @@ class Api(Utils):
         if req.method == 'POST':
             return self.create(req)
 
+        query = {}
+        for k, v in req.GET.iteritems():
+            try:
+                v = int(v)
+            except ValueError:
+                pass
+            else:
+                query[k] = v
+
         def get_items_json():
-            items = self.model.objects.all()
+            items = self.model.objects.filter(**query)
             for item in items:
                 is_readable = item.__is_readable__(req)
                 if not isinstance(is_readable, HttpResponse):

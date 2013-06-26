@@ -95,6 +95,17 @@ class ApiT(T):
         self.assertEqual(data.keys()[0], 'posts')
         self.assertEqual(len(data['posts']), 3)
 
+    def test_query(self):
+        data = {
+            'user__pk': 1
+        }
+        uri = reverse('apis:posts')
+        res = self.client.get(uri, data)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        # assert returns 2/3 matched posts
+        self.assertEqual(len(data['posts']), 2)
+
     def test_find(self):
         post = Post.objects.all()[0]
         uri = reverse('apis:post', kwargs={
