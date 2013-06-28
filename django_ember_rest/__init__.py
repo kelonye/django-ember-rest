@@ -52,6 +52,7 @@ class Field(Utils):
     def model(self):
         return self.field.rel.to
 
+
 class Relation(Utils):
 
     def __init__(self, relation):
@@ -69,13 +70,6 @@ class Relation(Utils):
             return self.relation.opts.concrete_model().__class__
         except AttributeError:
             return self.relation.model().__class__
-
-    @property
-    def has_many_name(self):
-        name = self.get_underscored_string(
-            self.relation.var_name
-        )
-        return name + '_ids'
 
     def get_items(self, item):
         query = {}
@@ -136,14 +130,6 @@ class Api(Utils):
                 if file_path:
                     del item_data[field.name]
                     item_data[field.underscored_name] = settings.MEDIA_URL + file_path
-
-        #  add has many fields
-        for relation in self.relations:
-            if not getattr(item_data, relation.has_many_name, None):
-                item_data[relation.has_many_name] = []
-            #item_data.setdefault(relation.has_many_name, [])
-            for obj in relation.get_items(item):
-                item_data[relation.has_many_name].append(obj.pk)
 
         return item_data
 
@@ -283,11 +269,6 @@ class Api(Utils):
         if isinstance(is_removable, HttpResponse):
             res = is_removable
             return res
-
-        # remove dependencies
-        # for relation in self.relations:
-        #     for obj in relation.get_items(item):
-        #         obj.delete()
 
         item.delete()
         

@@ -187,11 +187,6 @@ class RelationsT(T):
         data = json.loads(res.content)
         user_data = data['user']
         self.assertEqual(user_data['id'], user.pk)
-        self.assertEqual(len(user_data['post_ids']), 2)
-        self.assertTrue(1 in user_data['post_ids'])
-        self.assertTrue(2 in user_data['post_ids'])
-        self.assertEqual(len(user_data['tag_ids']), 0)
-        self.assertEqual(len(user_data['comment_ids']), 0)
 
         user = User.objects.get(pk=2)
         uri = reverse('apis:user', kwargs={
@@ -202,13 +197,6 @@ class RelationsT(T):
         data = json.loads(res.content)
         user_data = data['user']
         self.assertEqual(user_data['id'], user.pk)
-        self.assertEqual(len(user_data['post_ids']), 1)
-        self.assertEqual(len(user_data['tag_ids']), 2)
-        self.assertTrue(1 in user_data['tag_ids'])
-        self.assertTrue(2 in user_data['tag_ids'])
-        self.assertEqual(len(user_data['comment_ids']), 2)
-        self.assertTrue(1 in user_data['comment_ids'])
-        self.assertTrue(2 in user_data['comment_ids'])
 
     def test_dependant_records_are_deleted_on_delete(self):
         user = User.objects.get(pk=1)
