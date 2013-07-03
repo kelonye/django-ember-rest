@@ -59,7 +59,7 @@ Then on client side, define your store as
 ```
 
 App.Adapter = require('django-ember-rest').extend({
-  namespace: 'api'
+  namespace: ''
 });
 
 App.Store = DS.Store.extend({
