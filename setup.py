@@ -12,4 +12,5 @@ setup(
     requires=['Django (>=1.3.0)'],
     packages=find_packages(),
     license='MIT License',
-    zip_safe=True)
+    zip_safe=True
+)
