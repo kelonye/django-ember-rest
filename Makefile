@@ -1,3 +1,5 @@
+component = ./node_modules/component-hooks/node_modules/.bin/component
+
 test:
 	@make --no-print-directory -C test
 

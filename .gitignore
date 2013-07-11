@@ -1,6 +1,9 @@
+
 *.pyc
 *.sqlite3
-build/
+
+components
 dist
 django_ember_rest.egg-info
-test/public/
+node_modules
+*public
