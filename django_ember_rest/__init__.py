@@ -139,14 +139,18 @@ class Api(Utils):
             if type(item.field) == ForeignKey:
                 yield Relation(item)
 
-    # update `item` with `req`.body
-    def __update__(self, req, item):
-
+    def get_body(self, req):
         try:
             body = req.body
         except AttributeError:
             body = req.raw_post_data
+        finally:
+            return body
 
+    # update `item` with `req`.body
+    def __update__(self, req, item):
+
+        body = self.get_body(req)
         data = json.loads(body)[self.name]
 
         for field in self.field_list:
@@ -181,19 +185,57 @@ class Api(Utils):
     def all(self, req):
 
         if req.method == 'POST':
+
+            body = self.get_body(req)
+            if json.loads(body).get('query', None):
+                return self.query(req)
             return self.create(req)
 
-        query = {}
-        for k, v in req.GET.iteritems():
-            try:
-                v = int(v)
-            except ValueError:
-                pass
-            else:
-                query[k] = v
+        def get_items_json():
+            items = self.model.objects.all()
+            for item in items:
+                is_readable = item.__is_readable__(req)
+                if not isinstance(is_readable, HttpResponse):
+                    yield self.item_to_JSON(item)
+
+        json_data = {}
+        json_data[self.plural_name] = [ i for i in get_items_json() ]
+
+        return HttpResponse(
+            json.dumps(json_data), content_type='application/json'
+        )
+
+
+    # QUERY /`model`/
+    @csrf_exempt
+    def query(self, req):
+
+        items = self.model.objects
+        body = self.get_body(req)
+        query = json.loads(body)['query']
+
+        # filter
+        filta = query.get('filter', None)
+        if filta:
+            items = items.filter(**filta)
+
+        # exclude
+        exclude = query.get('exclude', None)
+        if exclude:
+            items = items.exclude(**exclude)
+
+        # order_by
+        order_by = query.get('order_by', '?')
+        items = items.order_by(order_by)
+
+        # limit
+        limit = query.get('limit', None)
+        if limit:
+            if len(limit) == 2:
+                limit.append(1)
+            items = items[limit[0]: limit[1]: limit[2]]
 
         def get_items_json():
-            items = self.model.objects.filter(**query)
             for item in items:
                 is_readable = item.__is_readable__(req)
                 if not isinstance(is_readable, HttpResponse):
@@ -214,20 +256,7 @@ class Api(Utils):
         elif req.method == 'DELETE':
             return self.remove(req, pk)
         else:
-            return self.find(req, pk)
-
-    # GET /`model`/`pk`/
-    def find(self, req, pk):
-        item = self.model.objects.get(pk=pk)
-        is_readable = item.__is_readable__(req)
-        if isinstance(is_readable, HttpResponse):
-            res = is_readable
-            return res
-        json_data = {}
-        json_data[self.name] = self.item_to_JSON(item)
-        return HttpResponse(
-            json.dumps(json_data), content_type='application/json'
-        )
+            return self.get(req, pk)
 
     # POST /`model`/
     def create(self, req):
@@ -243,7 +272,21 @@ class Api(Utils):
 
         item.save()
 
-        return self.find(req, item.pk)
+        return self.get(req, item.pk)
+
+
+    # GET /`model`/`pk`/
+    def get(self, req, pk):
+        item = self.model.objects.get(pk=pk)
+        is_readable = item.__is_readable__(req)
+        if isinstance(is_readable, HttpResponse):
+            res = is_readable
+            return res
+        json_data = {}
+        json_data[self.name] = self.item_to_JSON(item)
+        return HttpResponse(
+            json.dumps(json_data), content_type='application/json'
+        )
 
     # PUT /`model`/`pk`/
     def update(self, req, pk):
@@ -258,7 +301,7 @@ class Api(Utils):
 
         item.save()
 
-        return self.find(req, pk)
+        return self.get(req, pk)
 
     # DELETE /`model`/`pk`/
     def remove(self, req, pk):

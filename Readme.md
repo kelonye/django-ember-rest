@@ -69,6 +69,51 @@ App.Store = DS.Store.extend({
 
 ```
 
+Querying
+---
+
+The following query methods are supported:
+    * [filter](https://docs.djangoproject.com/en/dev/ref/models/querysets/#filter)
+    * [exclude](https://docs.djangoproject.com/en/dev/ref/models/querysets/#exclude)
+    * [order_by](https://docs.djangoproject.com/en/dev/ref/models/querysets/#order-by)
+    * [limit](https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets)
+
+```javascript
+
+// jquery
+
+jQuery.ajax('/posts/', 'POST', {
+  data: {
+    query: {
+        filter: {
+            post__pk: 1
+        },
+        exclude: {
+            user__pk: 1
+        },
+        order_by: 'title',
+        limit: [50, 60]
+    }
+  }
+}).then(function(json){
+});
+
+
+// ember-data
+
+App.Post.find({
+    filter: {
+        post__pk: 1
+    },
+    exclude: {
+        user__pk: 1
+    },
+    order_by: 'title',
+    limit: [50, 60]
+});
+
+```
+
 Example
 ---
   

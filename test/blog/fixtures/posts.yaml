@@ -1,5 +1,5 @@
 - fields:
-    title: "Good Design"
+    title: "a"
     content: ""
     image: "posts/image.png"
     user: 1
@@ -7,14 +7,14 @@
   pk: 1
 
 - fields:
-    title: "Writing Better Apis"
+    title: "b"
     content: ""
     user: 1
   model: blog.post
   pk: 2
 
 - fields:
-    title: "Documenting code"
+    title: "c"
     content: ""
     user: 2
   model: blog.post

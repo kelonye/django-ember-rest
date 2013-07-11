@@ -95,33 +95,6 @@ class ApiT(T):
         self.assertEqual(data.keys()[0], 'posts')
         self.assertEqual(len(data['posts']), 3)
 
-    def test_query(self):
-        data = {
-            'user__pk': 1
-        }
-        uri = reverse('apis:posts')
-        res = self.client.get(uri, data)
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.content)
-        # assert returns 2/3 matched posts
-        self.assertEqual(len(data['posts']), 2)
-
-    def test_find(self):
-        post = Post.objects.all()[0]
-        uri = reverse('apis:post', kwargs={
-            'pk': post.pk
-        })
-        res = self.client.get(uri)
-        self.assertEqual(res.status_code, 200)
-        data = json.loads(res.content)
-        self.assertEqual(len(data.keys()), 1)
-        self.assertEqual(data.keys()[0], 'post')
-        post_data = data['post']
-        self.assertEqual(post_data['id'], post.pk)
-        self.assertEqual(post_data['title'], post.title)
-        self.assertEqual(post_data['content'], post.content)
-        self.assertEqual(post_data['user_id'], post.user.pk)
-
     def test_create(self):
         data = {'post': {
             'title': 'New Book',
@@ -137,6 +110,23 @@ class ApiT(T):
         self.assertEqual(post.title, data['post']['title'])
         self.assertEqual(post.content, data['post']['content'])
         self.assertEqual(post.user.pk, data['post']['user_id'])
+
+
+    def test_one(self):
+        post = Post.objects.all()[0]
+        uri = reverse('apis:post', kwargs={
+            'pk': post.pk
+        })
+        res = self.client.get(uri)
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        self.assertEqual(len(data.keys()), 1)
+        self.assertEqual(data.keys()[0], 'post')
+        post_data = data['post']
+        self.assertEqual(post_data['id'], post.pk)
+        self.assertEqual(post_data['title'], post.title)
+        self.assertEqual(post_data['content'], post.content)
+        self.assertEqual(post_data['user_id'], post.user.pk)
 
     def test_update(self):
         post = Post.objects.all()[0]
@@ -170,6 +160,102 @@ class ApiT(T):
             pass
         else:
             raise Exception('record still exists')
+
+
+class QueryT(T):
+
+    uri = reverse('apis:posts')
+
+    def test_filter(self):
+        data = {
+            'query': {
+                'filter': {
+                    'user__pk': 1
+                }
+            }
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        # assert returns 2/3 matched posts
+        self.assertEqual(len(data['posts']), 2)
+
+    def test_exclude(self):
+        data = {
+            'query': {
+                'exclude': {
+                    'user__pk': 1
+                }
+            }
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        # assert returns 1/3 matched posts
+        self.assertEqual(len(data['posts']), 1)
+
+    def test_order_by(self):
+        data = {
+            'query': {
+                'order_by': '-title'
+            }
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        posts = data['posts']
+        self.assertEqual(posts[0]['title'], 'c')
+        self.assertEqual(posts[1]['title'], 'b')
+        self.assertEqual(posts[2]['title'], 'a')
+
+        data = {
+            'query': {
+                'order_by': 'title'
+            }
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        posts = data['posts']
+        self.assertEqual(posts[0]['title'], 'a')
+        self.assertEqual(posts[1]['title'], 'b')
+        self.assertEqual(posts[2]['title'], 'c')
+
+    def test_limit(self):
+        data = {
+            'query': {
+                'limit': [0, 1]
+            }
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        # assert returns 1/3 matched posts
+        self.assertEqual(len(data['posts']), 1)
+
+        data = {
+            'query': {
+                'limit': [0, 2]
+            }
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        # assert returns 2/3 matched posts
+        self.assertEqual(len(data['posts']), 2)
+
 
 class RelationsT(T):
 
