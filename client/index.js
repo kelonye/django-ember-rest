@@ -7,10 +7,10 @@ module.exports = DS.RESTAdapter.extend({
     return url;
   },
   findQuery: function(store, type, query, recordArray) {
+    // post { query: {} }
     var root = this.rootForType(type);
     var adapter = this;
     var data = { query: query };
-    console.log(this.ajax)
     return this.ajax(this.buildURL(root), 'POST', {
       data: data
     }).then(function(json){
