@@ -74,10 +74,10 @@ Querying
 
 The following query methods are supported:
 
-  [filter](https://docs.djangoproject.com/en/dev/ref/models/querysets/#filter)
-  [exclude](https://docs.djangoproject.com/en/dev/ref/models/querysets/#exclude)
-  [order_by](https://docs.djangoproject.com/en/dev/ref/models/querysets/#order-by)
-  [limit](https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets)
+- [filter](https://docs.djangoproject.com/en/dev/ref/models/querysets/#filter)
+- [exclude](https://docs.djangoproject.com/en/dev/ref/models/querysets/#exclude)
+- [order_by](https://docs.djangoproject.com/en/dev/ref/models/querysets/#order-by)
+- [limit](https://docs.djangoproject.com/en/dev/topics/db/queries/#limiting-querysets)
 
 ```javascript
 
