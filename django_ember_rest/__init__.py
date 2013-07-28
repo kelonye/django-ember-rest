@@ -1,12 +1,11 @@
 import re
-from django.utils import simplejson as json
 from django.conf import settings
 from django.core import serializers
-from django.core.urlresolvers import reverse
+from django.http import HttpResponse
+from django.utils import simplejson as json
 from django.db.models.fields.files import FileField
 from django.db.models.fields.related import ForeignKey
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseRedirect
 
 try:
     from django.conf.urls import patterns, include, url
@@ -43,7 +42,7 @@ class Field(Utils):
     @property
     def underscored_name(self):
         return self.get_underscored_string(self.name)
-    
+
     @property
     def belongs_to_name(self):
         return self.underscored_name + '_id'
@@ -80,7 +79,7 @@ class Relation(Utils):
 
 class Api(Utils):
     def __init__(self, cls):
-        
+
         self.cls = cls
         self.model = cls.model
         self.fields = cls.fields
@@ -111,7 +110,7 @@ class Api(Utils):
             yield Field(field_name, field)
 
     def item_to_JSON(self, item):
-        
+
         items_string = serializers.serialize('json', [item], fields=self.fields)
         items_json = json.loads(items_string)
         item_json = items_json[0]
@@ -164,7 +163,6 @@ class Api(Utils):
             if value:
                 setattr(item, field.name, value)
 
-
     @property
     def urls(self):
         return [
@@ -204,7 +202,6 @@ class Api(Utils):
         return HttpResponse(
             json.dumps(json_data), content_type='application/json'
         )
-
 
     # QUERY /`model`/
     @csrf_exempt
@@ -263,7 +260,7 @@ class Api(Utils):
 
         item = self.model()
         self.__update__(req, item)
-        
+
         # note, __is_creatable__ should override any set attributes
         is_creatable = item.__is_creatable__(req)
         if isinstance(is_creatable, HttpResponse):
@@ -273,7 +270,6 @@ class Api(Utils):
         item.save()
 
         return self.get(req, item.pk)
-
 
     # GET /`model`/`pk`/
     def get(self, req, pk):
@@ -290,7 +286,7 @@ class Api(Utils):
 
     # PUT /`model`/`pk`/
     def update(self, req, pk):
-        
+
         item = self.model.objects.get(pk=pk)
         self.__update__(req, item)
 
@@ -314,8 +310,8 @@ class Api(Utils):
             return res
 
         item.delete()
-        
-        return HttpResponse(json.dumps('{}'))
+
+        return HttpResponse(json.dumps(''))
 
 
 class Apis(list):
