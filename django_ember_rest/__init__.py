@@ -16,7 +16,8 @@ except ImportError:
 class Utils:
 
     # return `string` underscored e.g.
-    # bigData/ big data -> big_data
+    # bigData -> big_data
+    # big data -> big_data
     def get_underscored_string(self, string):
         return re\
             .sub('(?!^)([A-Z]+)', r'_\1', string)\
@@ -28,9 +29,8 @@ class Permission(Utils):
     def __init__(self, model, attr):
         if not getattr(model, attr, None):
             opts = (model.__name__, attr)
-            raise Exception(
-                'please implement %s.%s(self, req)' % opts
-            )
+            e = 'please implement %s.%s(self, req)' % opts
+            raise Exception(e)
 
 
 class Field(Utils):
@@ -79,11 +79,9 @@ class Relation(Utils):
 
 class Api(Utils):
     def __init__(self, cls):
-
         self.cls = cls
         self.model = cls.model
         self.fields = cls.fields
-
         for attr in [
             '__is_creatable__',
             '__is_readable__',
@@ -96,12 +94,11 @@ class Api(Utils):
     def name(self):
         return self.get_underscored_string(self.model.__name__)
 
+    # TODO
+    # Use ember naming convention
     @property
     def plural_name(self):
-        plural_name = getattr(self.cls, 'plural_name', None)
-        if not plural_name:
-            plural_name = self.name + 's'
-        return plural_name
+        return self.name + 's'
 
     @property
     def field_list(self):
@@ -110,26 +107,23 @@ class Api(Utils):
             yield Field(field_name, field)
 
     def item_to_JSON(self, item):
-
-        items_string = serializers.serialize('json', [item], fields=self.fields)
+        items_string = serializers.serialize(
+            'json', [item], fields=self.fields
+        )
         items_json = json.loads(items_string)
         item_json = items_json[0]
         item_data = item_json['fields']
         item_data['id'] = item_json['pk']
-
         for field in self.field_list:
-
             if isinstance(field.field, ForeignKey):
                 pk = item_data[field.underscored_name]
                 del item_data[field.underscored_name]
                 item_data[field.belongs_to_name] = pk
-
             elif isinstance(field.field, FileField):
                 file_path = item_data[field.name]
                 if file_path:
                     del item_data[field.name]
                     item_data[field.underscored_name] = settings.MEDIA_URL + file_path
-
         return item_data
 
     @property
@@ -148,10 +142,8 @@ class Api(Utils):
 
     # update `item` with `req`.body
     def __update__(self, req, item):
-
         body = self.get_body(req)
         data = json.loads(body)[self.name]
-
         for field in self.field_list:
             value = None
             if isinstance(field.field, ForeignKey):
@@ -181,9 +173,7 @@ class Api(Utils):
     # GET /`model`/
     @csrf_exempt
     def all(self, req):
-
         if req.method == 'POST':
-
             body = self.get_body(req)
             if json.loads(body).get('query', None):
                 return self.query(req)
@@ -195,10 +185,10 @@ class Api(Utils):
                 is_readable = item.__is_readable__(req)
                 if not isinstance(is_readable, HttpResponse):
                     yield self.item_to_JSON(item)
-
         json_data = {}
-        json_data[self.plural_name] = [ i for i in get_items_json() ]
-
+        json_data[self.plural_name] = [
+            i for i in get_items_json()
+        ]
         return HttpResponse(
             json.dumps(json_data), content_type='application/json'
         )
@@ -206,25 +196,20 @@ class Api(Utils):
     # QUERY /`model`/
     @csrf_exempt
     def query(self, req):
-
         items = self.model.objects
         body = self.get_body(req)
         query = json.loads(body)['query']
-
         # filter
         filta = query.get('filter', None)
         if filta:
             items = items.filter(**filta)
-
         # exclude
         exclude = query.get('exclude', None)
         if exclude:
             items = items.exclude(**exclude)
-
         # order_by
         order_by = query.get('order_by', '?')
         items = items.order_by(order_by)
-
         # limit
         limit = query.get('limit', None)
         if limit:
@@ -237,10 +222,10 @@ class Api(Utils):
                 is_readable = item.__is_readable__(req)
                 if not isinstance(is_readable, HttpResponse):
                     yield self.item_to_JSON(item)
-
         json_data = {}
-        json_data[self.plural_name] = [ i for i in get_items_json() ]
-
+        json_data[self.plural_name] = [
+            i for i in get_items_json()
+        ]
         return HttpResponse(
             json.dumps(json_data), content_type='application/json'
         )
@@ -257,18 +242,14 @@ class Api(Utils):
 
     # POST /`model`/
     def create(self, req):
-
         item = self.model()
         self.__update__(req, item)
-
         # note, __is_creatable__ should override any set attributes
         is_creatable = item.__is_creatable__(req)
         if isinstance(is_creatable, HttpResponse):
             res = is_creatable
             return res
-
         item.save()
-
         return self.get(req, item.pk)
 
     # GET /`model`/`pk`/
@@ -286,31 +267,23 @@ class Api(Utils):
 
     # PUT /`model`/`pk`/
     def update(self, req, pk):
-
         item = self.model.objects.get(pk=pk)
         self.__update__(req, item)
-
         is_updatable = item.__is_updatable__(req)
         if isinstance(is_updatable, HttpResponse):
             res = is_updatable
             return res
-
         item.save()
-
         return self.get(req, pk)
 
     # DELETE /`model`/`pk`/
     def remove(self, req, pk):
-
         item = self.model.objects.get(pk=pk)
-
         is_removable = item.__is_removable__(req)
         if isinstance(is_removable, HttpResponse):
             res = is_removable
             return res
-
         item.delete()
-
         return HttpResponse(json.dumps(''))
 
 
@@ -318,7 +291,6 @@ class Apis(list):
 
     def __init__(self, *args):
         super(list, self).__init__()
-
         for cls in args:
             api = Api(cls)
             for url in api.urls:

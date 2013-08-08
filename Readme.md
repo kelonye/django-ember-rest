@@ -33,8 +33,6 @@ class UserApi:
     fields = (
         'username',
     )
-    # define custom plural name
-    plural_name = 'people'
 
 class ModelApi:
     model = Model
@@ -83,9 +81,11 @@ The following query methods are supported:
 
 // jquery
 
-jQuery.ajax('/posts/', 'POST', {
-  data: {
-    query: {
+jQuery.ajax({
+    url: '/posts/',
+    method: 'POST',
+    dataType: 'json',
+    data: { query: {
         filter: {
             post__pk: 1
         },
@@ -94,9 +94,9 @@ jQuery.ajax('/posts/', 'POST', {
         },
         order_by: 'title',
         limit: [50, 60]
+    }},
+    success: function(json){
     }
-  }
-}).then(function(json){
 });
 
 
