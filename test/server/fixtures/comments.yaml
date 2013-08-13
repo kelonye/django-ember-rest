@@ -2,12 +2,12 @@
     content: "Nice post"
     post: 3
     user: 2
-  model: blog.comment
+  model: server.comment
   pk: 1
 
 - fields:
     content: "I agree"
     post: 3
     user: 2
-  model: blog.comment
+  model: server.comment
   pk: 2

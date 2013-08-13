@@ -7,7 +7,7 @@ if __name__ == '__main__':
 
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     
-    APPLICATION = 'blog'
+    APPLICATION = 'server'
 
     os.environ.setdefault(
       'DJANGO_APPLICATION_NAME', APPLICATION

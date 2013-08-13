@@ -2,12 +2,12 @@
   "name": "django-ember-rest",
   "version": "0.1.2",
   "description": "Django Models ⇆ Ember-Data",
-  "main": "client/index.js",
+  "main": "django_ember_rest/client.js",
   "dependencies": {
     "kelonye/ember-data": "*"
   },
   "scripts": [
-    "client/index.js"
+    "django_ember_rest/client.js"
   ],
   "license": "MIT"
 }

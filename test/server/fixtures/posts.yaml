@@ -3,19 +3,19 @@
     content: ""
     image: "posts/image.png"
     user: 1
-  model: blog.post
+  model: server.post
   pk: 1
 
 - fields:
     title: "b"
     content: ""
     user: 1
-  model: blog.post
+  model: server.post
   pk: 2
 
 - fields:
     title: "c"
     content: ""
     user: 2
-  model: blog.post
+  model: server.post
   pk: 3

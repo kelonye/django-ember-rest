@@ -2,12 +2,12 @@
     name: design
     post: 3
     user: 2
-  model: blog.tag
+  model: server.tag
   pk: 1
 
 - fields:
     name: apis
     post: 3
     user: 2
-  model: blog.tag
+  model: server.tag
   pk: 2

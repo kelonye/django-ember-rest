@@ -25,14 +25,6 @@ class Utils:
             .lower()
 
 
-class Permission(Utils):
-    def __init__(self, model, attr):
-        if not getattr(model, attr, None):
-            opts = (model.__name__, attr)
-            e = 'please implement %s.%s(self, req)' % opts
-            raise Exception(e)
-
-
 class Field(Utils):
 
     def __init__(self, name, field):
@@ -78,17 +70,17 @@ class Relation(Utils):
 
 
 class Api(Utils):
-    def __init__(self, cls):
-        self.cls = cls
-        self.model = cls.model
-        self.fields = cls.fields
+    def __init__(self):
         for attr in [
             '__is_creatable__',
             '__is_readable__',
             '__is_updatable__',
             '__is_removable__'
         ]:
-            Permission(self.model, attr)
+            if not getattr(self, attr, None):
+                opts = (self, attr)
+                e = 'please implement %s.%s(self, req)' % opts
+                raise Exception(e)
 
     @property
     def name(self):
@@ -169,7 +161,7 @@ class Api(Utils):
                 , name=self.name
             ),
         ]
-
+    
     # GET /`model`/
     @csrf_exempt
     def all(self, req):
@@ -182,7 +174,7 @@ class Api(Utils):
         def get_items_json():
             items = self.model.objects.all()
             for item in items:
-                is_readable = item.__is_readable__(req)
+                is_readable = self.__is_readable__(req, item)
                 if not isinstance(is_readable, HttpResponse):
                     yield self.item_to_JSON(item)
         json_data = {}
@@ -219,7 +211,7 @@ class Api(Utils):
 
         def get_items_json():
             for item in items:
-                is_readable = item.__is_readable__(req)
+                is_readable = self.__is_readable__(req, item)
                 if not isinstance(is_readable, HttpResponse):
                     yield self.item_to_JSON(item)
         json_data = {}
@@ -245,7 +237,7 @@ class Api(Utils):
         item = self.model()
         self.__update__(req, item)
         # note, __is_creatable__ should override any set attributes
-        is_creatable = item.__is_creatable__(req)
+        is_creatable = self.__is_creatable__(req, item)
         if isinstance(is_creatable, HttpResponse):
             res = is_creatable
             return res
@@ -255,7 +247,7 @@ class Api(Utils):
     # GET /`model`/`pk`/
     def get(self, req, pk):
         item = self.model.objects.get(pk=pk)
-        is_readable = item.__is_readable__(req)
+        is_readable = self.__is_readable__(req, item)
         if isinstance(is_readable, HttpResponse):
             res = is_readable
             return res
@@ -269,7 +261,7 @@ class Api(Utils):
     def update(self, req, pk):
         item = self.model.objects.get(pk=pk)
         self.__update__(req, item)
-        is_updatable = item.__is_updatable__(req)
+        is_updatable = self.__is_updatable__(req, item)
         if isinstance(is_updatable, HttpResponse):
             res = is_updatable
             return res
@@ -279,7 +271,7 @@ class Api(Utils):
     # DELETE /`model`/`pk`/
     def remove(self, req, pk):
         item = self.model.objects.get(pk=pk)
-        is_removable = item.__is_removable__(req)
+        is_removable = self.__is_removable__(req, item)
         if isinstance(is_removable, HttpResponse):
             res = is_removable
             return res
@@ -292,7 +284,7 @@ class Apis(list):
     def __init__(self, *args):
         super(list, self).__init__()
         for cls in args:
-            api = Api(cls)
+            api = cls()
             for url in api.urls:
                 self.append(url)
 

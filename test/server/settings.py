@@ -92,7 +92,7 @@ TEST_EXCLUDE = (
 )
 
 INSTALLED_APPS = TEST_EXCLUDE + (
-    'blog',
+    '%s' % APPLICATION,
 )
 
 TEST_RUNNER = 'django_test_exclude.runners.ExcludeTestSuiteRunner'

@@ -13,26 +13,27 @@ Use
 
 class Model(db.Models):
     ...
-    # define model permissions
-    def __is_creatable__(self, req):
-        return HttpResponse(status=403)
-    def __is_readable__(self, req):
-        return
-    def __is_updatable__(self, req):
-        return HttpResponse(status=403)
-    def __is_removable__(self, req):
-        return HttpResponse(status=403)
-
 
 # apis
 
 from django_ember_rest import Apis
 
 class UserApi:
+    # model
     model = User
+    # fields
     fields = (
         'username',
     )
+    # model permissions
+    def __is_creatable__(self, req, item):
+        return HttpResponse(status=403)
+    def __is_readable__(self, req, item):
+        return
+    def __is_updatable__(self, req, item):
+        return HttpResponse(status=403)
+    def __is_removable__(self, req, item):
+        return HttpResponse(status=403)
 
 class ModelApi:
     model = Model
@@ -40,7 +41,7 @@ class ModelApi:
         'name',
         'content',
     )
-
+    ...
 
 # urls
 

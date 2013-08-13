@@ -2,20 +2,20 @@
 
 from django.http import HttpResponse
 
-def superuser(self, req):
+def superuser(self, req, item):
     user = req.user
     if not user or not user.is_superuser:
         return HttpResponse(status=403)
     return
 
-def owner(self, req):
+def owner(self, req, item):
     user = req.user
-    if not user or self.user != user:
+    if not user or item.user != user:
         return HttpResponse(status=403)
     return
 
-def anyone(self, req):
+def anyone(self, req, item):
     return
 
-def none(self, req):
+def none(self, req, item):
     return HttpResponse(status=403)

@@ -1,14 +1,14 @@
 test:
 	@./manage.py test --failfast
 
-boot: blog.sqlite3
+boot: server.sqlite3
 	@python manage.py runserver
 
-blog.sqlite3:
+server.sqlite3:
 	@./manage.py syncdb --noinput
-	@./manage.py loaddata blog/fixtures/*
+	@./manage.py loaddata server/fixtures/*
 
 clean:
-	@rm -rf blog.sqlite3
+	@rm -rf server.sqlite3
 
 .PHONY: clean
