@@ -1,6 +1,6 @@
 {
   "name": "django-ember-rest",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Django Models ⇆ Ember-Data",
   "main": "django_ember_rest/client.js",
   "dependencies": {
