@@ -9,16 +9,11 @@ Use
 
 ```
 
-# models
-
-class Model(db.Models):
-    ...
-
 # apis
 
-from django_ember_rest import Apis
+from django_ember_rest import Api, Apis
 
-class UserApi:
+class UserApi(Api):
     # model
     model = User
     # fields
@@ -43,12 +38,15 @@ class ModelApi:
     )
     ...
 
+urls = Apis(UserApi, ModelApi)
+
+
 # urls
 
-apis = Apis(UserApi, ModelApi)
+from apis import urls
 
 urlpatterns = patterns('',
-    url(r'^', include(apis.urls)),
+    url(r'^', include(urls)),
 )
 
 ```
