@@ -78,8 +78,8 @@ class Api(Utils):
             '__is_removable__'
         ]:
             if not getattr(self, attr, None):
-                opts = (self, attr)
-                e = 'please implement %s.%s(self, req)' % opts
+                opts = (self.__class__, attr)
+                e = 'please implement %s.%s(self, req, item)' % opts
                 raise Exception(e)
 
     @property
@@ -124,7 +124,7 @@ class Api(Utils):
             if type(item.field) == ForeignKey:
                 yield Relation(item)
 
-    def get_body(self, req):
+    def get_request_body(self, req):
         try:
             body = req.body
         except AttributeError:
@@ -134,7 +134,7 @@ class Api(Utils):
 
     # update `item` with `req`.body
     def __update__(self, req, item):
-        body = self.get_body(req)
+        body = self.get_request_body(req)
         data = json.loads(body)[self.name]
         for field in self.field_list:
             value = None
@@ -166,7 +166,7 @@ class Api(Utils):
     @csrf_exempt
     def all(self, req):
         if req.method == 'POST':
-            body = self.get_body(req)
+            body = self.get_request_body(req)
             if json.loads(body).get('query', None):
                 return self.query(req)
             return self.create(req)
@@ -189,7 +189,7 @@ class Api(Utils):
     @csrf_exempt
     def query(self, req):
         items = self.model.objects
-        body = self.get_body(req)
+        body = self.get_request_body(req)
         query = json.loads(body)['query']
         # filter
         filta = query.get('filter', None)

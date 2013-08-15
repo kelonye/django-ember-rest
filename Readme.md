@@ -9,7 +9,7 @@ Use
 
 ```
 
-# apis
+# apis.py
 
 from django_ember_rest import Api, Apis
 
@@ -20,7 +20,7 @@ class UserApi(Api):
     fields = (
         'username',
     )
-    # model permissions
+    # permissions
     def __is_creatable__(self, req, item):
         return HttpResponse(status=403)
     def __is_readable__(self, req, item):
@@ -41,7 +41,7 @@ class ModelApi:
 urls = Apis(UserApi, ModelApi)
 
 
-# urls
+# urls.py
 
 from apis import urls
 
