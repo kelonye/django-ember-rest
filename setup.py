@@ -10,7 +10,8 @@ setup(
     author_email='kelonyemitchel@gmail.com',
     url='https://github.com/kelonye/django-ember-rest',
     requires=['Django (>=1.3.0)'],
-    packages=find_packages(),
+    packages=['django_ember_rest',],
+    package_dir = {'django_ember_rest': 'lib'},
     license='MIT License',
     zip_safe=True
 )
