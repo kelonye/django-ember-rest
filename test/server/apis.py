@@ -1,5 +1,5 @@
 from models import Tag, User, Post, Comment
-from django_ember_rest import Api, Apis
+from lib import Api, Apis
 import allow
 
 

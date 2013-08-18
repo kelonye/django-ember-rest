@@ -43,32 +43,6 @@ class Field(Utils):
     def model(self):
         return self.field.rel.to
 
-
-class Relation(Utils):
-
-    def __init__(self, relation):
-        self.relation = relation
-
-    @property
-    def name(self):
-        return self.get_underscored_string(
-            self.relation.field.verbose_name
-        )
-
-    @property
-    def model(self):
-        try:
-            return self.relation.opts.concrete_model().__class__
-        except AttributeError:
-            return self.relation.model().__class__
-
-    def get_items(self, item):
-        query = {}
-        query[self.name] = item
-        for obj in self.model.objects.filter(**query):
-            yield obj
-
-
 class Api(Utils):
     def __init__(self):
         for attr in [
@@ -98,6 +72,14 @@ class Api(Utils):
             field = self.model._meta.get_field(field_name)
             yield Field(field_name, field)
 
+    def get_request_body(self, req):
+        try:
+            body = req.body
+        except AttributeError:
+            body = req.raw_post_data
+        finally:
+            return body
+
     def item_to_JSON(self, item):
         items_string = serializers.serialize(
             'json', [item], fields=self.fields
@@ -118,22 +100,8 @@ class Api(Utils):
                     item_data[field.underscored_name] = settings.MEDIA_URL + file_path
         return item_data
 
-    @property
-    def relations(self):
-        for item in self.model._meta.get_all_related_objects():
-            if type(item.field) == ForeignKey:
-                yield Relation(item)
-
-    def get_request_body(self, req):
-        try:
-            body = req.body
-        except AttributeError:
-            body = req.raw_post_data
-        finally:
-            return body
-
     # update `item` with `req`.body
-    def __update__(self, req, item):
+    def update_item(self, req, item):
         body = self.get_request_body(req)
         data = json.loads(body)[self.name]
         for field in self.field_list:
@@ -188,9 +156,14 @@ class Api(Utils):
     # QUERY /`model`/
     @csrf_exempt
     def query(self, req):
-        items = self.model.objects
         body = self.get_request_body(req)
         query = json.loads(body)['query']
+        if query == 'count':
+            count = '%s' % self.model.objects.count()
+            return HttpResponse(
+                count, content_type='text/plain'
+            )
+        items = self.model.objects
         # filter
         filta = query.get('filter', None)
         if filta:
@@ -235,7 +208,7 @@ class Api(Utils):
     # POST /`model`/
     def create(self, req):
         item = self.model()
-        self.__update__(req, item)
+        self.update_item(req, item)
         # note, __is_creatable__ should override any set attributes
         is_creatable = self.__is_creatable__(req, item)
         if isinstance(is_creatable, HttpResponse):
@@ -260,7 +233,7 @@ class Api(Utils):
     # PUT /`model`/`pk`/
     def update(self, req, pk):
         item = self.model.objects.get(pk=pk)
-        self.__update__(req, item)
+        self.update_item(req, item)
         is_updatable = self.__is_updatable__(req, item)
         if isinstance(is_updatable, HttpResponse):
             res = is_updatable

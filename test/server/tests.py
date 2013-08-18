@@ -2,7 +2,7 @@ import unittest
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
-from django_ember_rest import json
+from lib import json
 from models import Tag, User, Post, Comment
 
 
@@ -110,7 +110,6 @@ class ApiT(T):
         self.assertEqual(post.title, data['post']['title'])
         self.assertEqual(post.content, data['post']['content'])
         self.assertEqual(post.user.pk, data['post']['user_id'])
-
 
     def test_one(self):
         post = Post.objects.all()[0]
@@ -256,6 +255,25 @@ class QueryT(T):
         # assert returns 2/3 matched posts
         self.assertEqual(len(data['posts']), 2)
 
+    def test_count(self):
+        data = {
+            'query': 'count'
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(Post.objects.count(), int(res.content))
+
+        uri = reverse('apis:comments')
+        data = {
+            'query': 'count'
+        }
+        res = self.client.post(
+            uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(Comment.objects.count(), int(res.content))
 
 class RelationsT(T):
 

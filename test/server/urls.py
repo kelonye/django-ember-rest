@@ -1,4 +1,4 @@
-from django_ember_rest import patterns, include, url
+from lib import patterns, include, url
 import apis
 
 urlpatterns = patterns('',
