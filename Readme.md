@@ -7,7 +7,7 @@ Install
 Use
 ---
 
-```
+```python
 
 # apis.py
 
@@ -53,7 +53,7 @@ urlpatterns = patterns('',
 
 Then on client side, define your store as
 
-```
+```javascript
 
 App.Adapter = require('django-ember-rest').extend({
   namespace: ''
