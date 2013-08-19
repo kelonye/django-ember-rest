@@ -82,7 +82,7 @@ The following query methods are supported:
 
 jQuery.ajax({
     url: '/posts/',
-    method: 'POST',
+    type: 'POST',
     dataType: 'json',
     data: JSON.stringify({ query: {
         filter: {
