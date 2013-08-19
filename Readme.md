@@ -84,7 +84,7 @@ jQuery.ajax({
     url: '/posts/',
     method: 'POST',
     dataType: 'json',
-    data: { query: {
+    data: JSON.stringify({ query: {
         filter: {
             post__pk: 1
         },
@@ -93,8 +93,9 @@ jQuery.ajax({
         },
         order_by: 'title',
         limit: [50, 60]
-    }},
-    success: function(json){
+    }}),
+    success: function(items){
+        console.log(items);
     }
 });
 
