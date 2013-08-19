@@ -165,6 +165,27 @@ class QueryT(T):
 
     uri = reverse('apis:posts')
 
+    @unittest.skip('unimplemented')
+    def test_is_sql(self):
+        data = {
+            'query': 'SELECT * WHERE ...'
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 400)
+
+        data = {
+            'query': 'WHERE user__pk'
+        }
+        res = self.client.post(
+            self.uri, json.dumps(data), 'application/json'
+        )
+        self.assertEqual(res.status_code, 200)
+        data = json.loads(res.content)
+        # assert returns 1/3 matched posts
+        self.assertEqual(len(data['posts']), 1)
+
     def test_filter(self):
         data = {
             'query': {

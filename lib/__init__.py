@@ -163,24 +163,33 @@ class Api(Utils):
             return HttpResponse(
                 count, content_type='text/plain'
             )
-        items = self.model.objects
-        # filter
-        filta = query.get('filter', None)
-        if filta:
-            items = items.filter(**filta)
-        # exclude
-        exclude = query.get('exclude', None)
-        if exclude:
-            items = items.exclude(**exclude)
-        # order_by
-        order_by = query.get('order_by', '?')
-        items = items.order_by(order_by)
-        # limit
-        limit = query.get('limit', None)
-        if limit:
-            if len(limit) == 2:
-                limit.append(1)
-            items = items[limit[0]: limit[1]: limit[2]]
+        if isinstance(query, str):
+            if not query.startswith('WHERE'):
+                e = 'Please start your query with WHERE'
+                return HttpResponse(
+                    e, content_type='text/plain', status=400
+                )
+            item = []
+            #items = self.model.objects.raw(query)
+        else:
+            items = self.model.objects
+            # filter
+            filta = query.get('filter', None)
+            if filta:
+                items = items.filter(**filta)
+            # exclude
+            exclude = query.get('exclude', None)
+            if exclude:
+                items = items.exclude(**exclude)
+            # order_by
+            order_by = query.get('order_by', '?')
+            items = items.order_by(order_by)
+            # limit
+            limit = query.get('limit', None)
+            if limit:
+                if len(limit) == 2:
+                    limit.append(1)
+                items = items[limit[0]: limit[1]: limit[2]]
 
         def get_items_json():
             for item in items:
