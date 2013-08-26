@@ -80,6 +80,28 @@ class Api(Utils):
         finally:
             return body
 
+    # func to use custom query
+    def get_queried_items(self, query):
+        items = self.model.objects
+        # filter
+        filta = query.get('filter', None)
+        if filta:
+            items = items.filter(**filta)
+        # exclude
+        exclude = query.get('exclude', None)
+        if exclude:
+            items = items.exclude(**exclude)
+        # order_by
+        order_by = query.get('order_by', '?')
+        items = items.order_by(order_by)
+        # limit
+        limit = query.get('limit', None)
+        if limit:
+            if len(limit) == 2:
+                limit.append(1)
+            items = items[limit[0]: limit[1]: limit[2]]
+        return items
+
     def item_to_JSON(self, item):
         items_string = serializers.serialize(
             'json', [item], fields=self.fields
@@ -172,25 +194,7 @@ class Api(Utils):
             item = []
             #items = self.model.objects.raw(query)
         else:
-            items = self.model.objects
-            # filter
-            filta = query.get('filter', None)
-            if filta:
-                items = items.filter(**filta)
-            # exclude
-            exclude = query.get('exclude', None)
-            if exclude:
-                items = items.exclude(**exclude)
-            # order_by
-            order_by = query.get('order_by', '?')
-            items = items.order_by(order_by)
-            # limit
-            limit = query.get('limit', None)
-            if limit:
-                if len(limit) == 2:
-                    limit.append(1)
-                items = items[limit[0]: limit[1]: limit[2]]
-
+            items = self.get_queried_items(query)
         def get_items_json():
             for item in items:
                 is_readable = self.__is_readable__(req, item)
