@@ -19,11 +19,10 @@ class Utils:
     # bigData -> big_data
     # big data -> big_data
     def get_underscored_string(self, string):
-        return string.lower()
-        # return re\
-        #     .sub('(?!^)([A-Z]+)', r'_\1', string)\
-        #     .replace(' ', '_')\
-        #     .lower()
+        return re\
+            .sub('(?!^)([A-Z]+)', r'_\1', string)\
+            .replace(' ', '_')\
+            .lower()
 
 
 class Field(Utils):
